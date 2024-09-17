@@ -20,7 +20,7 @@ const layoutNodes = (nodes, edges) => {
 
   dagre.layout(g);
 
-  return nodes.map((node) => {
+  return nodes?.map((node) => {
     const nodeWithPosition = g.node(node.id);
     return {
       ...node,
@@ -39,22 +39,24 @@ const App = () => {
 
   const handleNodeClick = async (event, node) => {
     const nodeId = node.id;
+
     if (nodeId === "start") {
+      console.log("start");
       const categories = await fetchCategories();
-      const categoryNodes = categories.map((cat) => ({
+      const categoryNodes = categories?.map((cat) => ({
         id: cat.strCategory,
         data: { label: cat.strCategory },
-        position: { x: 0, y: 0 }, // Initial position, dagre will adjust it
+        position: { x: 0, y: 0 },
         style: {
           background: "#00aaff",
           color: "#fff",
           borderRadius: "5px",
         },
       }));
-      const newEdges = categoryNodes.map((node) => ({
-        id: `edge-${nodeId}-${node.id}`,
+      const newEdges = categoryNodes?.map((categoryNode) => ({
+        id: `edge-${nodeId}-${categoryNode.id}`,
         source: nodeId,
-        target: node.id,
+        target: categoryNode.id,
         animated: true,
         style: { stroke: "#00aaff" },
       }));
@@ -62,35 +64,92 @@ const App = () => {
         layoutNodes([...prevNodes, ...categoryNodes], [...edges, ...newEdges])
       );
       setEdges((prevEdges) => [...prevEdges, ...newEdges]);
-    } else if (nodeId && !nodeId.startsWith("meal-") && !Number(nodeId)) {
-      console.log("nodeId && !meal");
+    } else if (
+      nodeId &&
+      !nodeId.startsWith("meal-") &&
+      !nodeId.startsWith("view-")
+    ) {
+      console.log("!meal && not view", nodeId);
       const meals = await fetchMealsByCategory(nodeId);
-      const mealNodes = meals.map((meal) => ({
+      const mealNodes = meals?.map((meal) => ({
         id: meal.idMeal,
         data: { label: meal.strMeal },
-        position: { x: 0, y: 0 }, // Initial position, dagre will adjust it
+        position: { x: 0, y: 0 },
         style: { background: "#ff5722", color: "#fff", borderRadius: "5px" },
       }));
-      const newEdges = mealNodes.map((node) => ({
-        id: `edge-${nodeId}-${node.id}`,
+      const newEdges = mealNodes?.map((mealNode) => ({
+        id: `edge-${nodeId}-${mealNode.id}`,
         source: nodeId,
-        target: node.id,
+        target: mealNode.id,
         animated: true,
         style: { stroke: "#ff5722" },
       }));
+      const viewIngredientsNode = {
+        id: `view-ingredients-${nodeId}`,
+        data: { label: "View Ingredients" },
+        position: { x: 0, y: 0 },
+        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+      };
+      const viewTagsNode = {
+        id: `view-tags-${nodeId}`,
+        data: { label: "View Tags" },
+        position: { x: 0, y: 0 },
+        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+      };
+      const viewDetailsNode = {
+        id: `view-details-${nodeId}`,
+        data: { label: "View Details" },
+        position: { x: 0, y: 0 },
+        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+      };
+      const optionEdges = [
+        {
+          id: `edge-${nodeId}-${viewIngredientsNode.id}`,
+          source: nodeId,
+          target: viewIngredientsNode.id,
+          animated: true,
+          style: { stroke: "#4caf50" },
+        },
+        {
+          id: `edge-${nodeId}-${viewTagsNode.id}`,
+          source: nodeId,
+          target: viewTagsNode.id,
+          animated: true,
+          style: { stroke: "#4caf50" },
+        },
+        {
+          id: `edge-${nodeId}-${viewDetailsNode.id}`,
+          source: nodeId,
+          target: viewDetailsNode.id,
+          animated: true,
+          style: { stroke: "#4caf50" },
+        },
+      ];
       setNodes((prevNodes) =>
-        layoutNodes([...prevNodes, ...mealNodes], [...edges, ...newEdges])
+        layoutNodes(
+          [
+            ...prevNodes,
+            ...mealNodes,
+            viewIngredientsNode,
+            viewTagsNode,
+            viewDetailsNode,
+          ],
+          [...edges, ...newEdges, ...optionEdges]
+        )
       );
-      setEdges((prevEdges) => [...prevEdges, ...newEdges]);
+      setEdges((prevEdges) => [...prevEdges, ...newEdges, ...optionEdges]);
+    } else if (nodeId.startsWith("view-")) {
+      console.log("view");
+      const mealId = nodeId.split("-")[2];
+      if (nodeId.includes("details")) {
+        console.log("details");
+        const meal = await fetchMealDetails(mealId);
+        setSelectedMeal(meal);
+      }
     } else {
-      handleMealClick(nodeId);
-      console.log("invoking functionn");
+      // Handle clicks on older nodes or options (re-open details or categories)
+      console.log("Node clicked:", nodeId);
     }
-  };
-
-  const handleMealClick = async (mealId) => {
-    const meal = await fetchMealDetails(mealId);
-    setSelectedMeal(meal);
   };
 
   return (
