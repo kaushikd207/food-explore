@@ -14,7 +14,13 @@
     "react-scripts": "5.0.1",
     "reactflow": "^11.11.4",
     "tailwindcss": "^3.4.11",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/material": "^6.1.0",
+    "@xyflow/react": "^12.3.0",
+    "react-toastify": "^10.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
