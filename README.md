@@ -3,7 +3,8 @@ This is a Food explore application where users can search food recipes, read blo
 
 
 
-https://github.com/user-attachments/assets/4521205e-bd28-488a-b016-e1dc70cc71da
+https://github.com/user-attachments/assets/2c61806a-3bd4-4fa2-9ece-f20a06eda83f
+
 
 Deployed Link:- https://makefoodkd.netlify.app/
 
