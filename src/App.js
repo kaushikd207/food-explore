@@ -3,7 +3,10 @@ import Flow from "./components/Flow";
 import Sidebar from "./components/Sidebar";
 import { fetchCategories, fetchMealsByCategory, fetchMealDetails } from "./api";
 import dagre from "dagre";
-
+import { FaGlobe } from "react-icons/fa";
+import { MdOutlineNoMeals } from "react-icons/md";
+import { BiCategoryAlt } from "react-icons/bi";
+import { FaShare } from "react-icons/fa";
 // Function to arrange nodes using dagre layout with horizontal alignment
 const layoutNodes = (nodes, edges) => {
   const g = new dagre.graphlib.Graph();
@@ -44,12 +47,19 @@ const App = () => {
       const categories = await fetchCategories();
       const categoryNodes = categories?.map((cat) => ({
         id: cat.strCategory,
-        data: { label: cat.strCategory },
+        data: {
+          label: (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <BiCategoryAlt style={{ marginRight: "8px" }} /> {cat.strCategory}
+            </div>
+          ),
+        },
         position: { x: 0, y: 0 },
         style: {
-          background: "#00aaff",
-          color: "#fff",
+          background: "white",
           borderRadius: "5px",
+          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          fontWeight: "bold",
         },
       }));
       const newEdges = categoryNodes?.map((categoryNode) => ({
@@ -71,9 +81,20 @@ const App = () => {
       const meals = await fetchMealsByCategory(nodeId);
       const mealNodes = meals?.map((meal) => ({
         id: meal.idMeal,
-        data: { label: meal.strMeal },
+        data: {
+          label: (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <MdOutlineNoMeals style={{ marginRight: "8px" }} /> {meal.strMeal}
+            </div>
+          ),
+        },
         position: { x: 0, y: 0 },
-        style: { background: "#ff5722", color: "#fff", borderRadius: "5px" },
+        style: {
+          background: "white",
+          borderRadius: "5px",
+          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          fontWeight: "bold",
+        },
       }));
       const newEdges = mealNodes?.map((mealNode) => ({
         id: `edge-${nodeId}-${mealNode.id}`,
@@ -84,21 +105,57 @@ const App = () => {
       }));
       const viewIngredientsNode = {
         id: `view-ingredients-${nodeId}`,
-        data: { label: "View Ingredients" },
+        data: {
+          label: (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
+              "View Ingredient"
+            </div>
+          ),
+        },
         position: { x: 0, y: 0 },
-        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+        style: {
+          background: "white",
+          borderRadius: "5px",
+          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          fontWeight: "bold",
+        },
       };
       const viewTagsNode = {
         id: `view-tags-${nodeId}`,
-        data: { label: "View Tags" },
+        data: {
+          label: (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
+              "View Tags"
+            </div>
+          ),
+        },
         position: { x: 0, y: 0 },
-        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+        style: {
+          background: "white",
+          borderRadius: "5px",
+          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          fontWeight: "bold",
+        },
       };
       const viewDetailsNode = {
         id: `view-details-${nodeId}`,
-        data: { label: "View Details" },
+        data: {
+          label: (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
+              "View Details"
+            </div>
+          ),
+        },
         position: { x: 0, y: 0 },
-        style: { background: "#4caf50", color: "#fff", borderRadius: "5px" },
+        style: {
+          background: "white",
+          borderRadius: "5px",
+          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          fontWeight: "bold",
+        },
       };
       const optionEdges = [
         {
@@ -164,18 +221,24 @@ const App = () => {
   };
 
   return (
-    <div className="relative flex">
-      <Flow nodes={nodes} edges={edges} onNodeClick={handleNodeClick} />
-      <Sidebar meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
-      <div className="absolute top-4 left-4">
-        <button
-          onClick={() => handleNodeClick(null, { id: "start" })}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
-        >
-          Explore
-        </button>
+    <>
+      <div className=" h-10 border border-b-2 border-b-grey">
+        <p className="mt-1 ml-2">Food Explorer</p>
       </div>
-    </div>
+      <div className="relative flex">
+        <Flow nodes={nodes} edges={edges} onNodeClick={handleNodeClick} />
+        <Sidebar meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
+        <div className="absolute top-4 left-4">
+          <button
+            onClick={() => handleNodeClick(null, { id: "start" })}
+            className="flex items-center px-4 py-2 text-black rounded-lg shadow-md transition"
+          >
+            <FaGlobe className="mr-2" />
+            Explore
+          </button>
+        </div>
+      </div>
+    </>
   );
 };
 
