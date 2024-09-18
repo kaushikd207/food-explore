@@ -1,13 +1,19 @@
-import React from 'react';
-import ReactFlow, { MiniMap, Controls } from 'reactflow';
-import 'reactflow/dist/style.css';
+import React from "react";
+import ReactFlow, { Controls, Background } from "reactflow";
+import "reactflow/dist/style.css";
 
 const Flow = ({ nodes, edges, onNodeClick }) => {
   return (
-    <div className="h-screen w-full bg-gray-100">
-      <ReactFlow nodes={nodes} edges={edges} onNodeClick={onNodeClick}>
-        <MiniMap />
+    <div className="w-[100%] h-screen">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodeClick={onNodeClick}
+        fitView
+        style={{ background: "#f5f5f5" }}
+      >
         <Controls />
+        <Background gap={20} size={1} color="#ccc" />
       </ReactFlow>
     </div>
   );

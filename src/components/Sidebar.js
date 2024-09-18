@@ -2,36 +2,55 @@ import React from "react";
 
 const Sidebar = ({ meal, onClose }) => {
   if (!meal) return null;
-  console.log(meal);
+
   return (
-    <div className="fixed right-0 top-0 w-1/3 h-full bg-white shadow-lg p-6 border-l border-gray-200 overflow-y-auto">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 px-3 py-1 bg-gray-300 rounded-lg text-gray-700 hover:bg-gray-400 transition"
-      >
-        Close
-      </button>
-      <h2 className="text-2xl font-bold mb-4">{meal.strMeal}</h2>
+    <div className="w-1/4 h-screen bg-white shadow-lg p-4 absolute right-0 top-0 ">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">{meal.strMeal}</h2>
+        <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
+          X
+        </button>
+      </div>
       <img
-        src={`${meal.strMealThumb}/preview`}
+        src={meal.strMealThumb}
         alt={meal.strMeal}
-        className="w-full rounded-lg shadow-md"
+        className="w-full h-40 object-cover mb-4 rounded-md shadow"
       />
-      <h6>Category: {meal?.strCategory}</h6>
-      <h6>Area: {meal?.strArea}</h6>
-      <h6>
-        Youtube:
-        <a href={meal?.strYoutube} target="_blank">
-          {meal?.strYoutube}
-        </a>
-      </h6>
-      <h6>
-        Recipe:
-        <a href={meal?.strSorce} target="_blank">
-          {meal?.strSource}
-        </a>
-      </h6>
-      <p className="text-gray-700 mb-4">{meal.strInstructions}</p>
+      <div className="flex gap-2">
+        {meal.strTags &&
+          meal.strTags.split(",").map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-1 bg-blue-500 text-white rounded-lg text-sm"
+            >
+              {tag}
+            </span>
+          ))}
+      </div>
+      <div className="">
+        <p>
+          Categorie:- <span>{meal.strCategory || "NA"}</span>
+        </p>
+        <p>
+          Area:- <span>{meal.strArea || "NA"}</span>
+        </p>
+        <p>
+          Youtube:-
+          <a className="underline" href={meal.strYoutube} target="_blank">
+            {meal.strYoutube || "NA"}
+          </a>
+        </p>
+        <p>
+          Source:-
+          <a className="underline" href={meal.strSource} target="_blank">
+            {meal.strSource || "NA"}
+          </a>
+        </p>
+      </div>
+      <p className="text-gray-700 mb-4 border-[2px] border-gray-400 rounded-sm p-2">
+        <strong>Instructions:</strong>{" "}
+        {meal.strInstructions.slice(0, 400) + "..."}
+      </p>
     </div>
   );
 };

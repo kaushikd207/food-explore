@@ -41,7 +41,6 @@ const App = () => {
     const nodeId = node.id;
 
     if (nodeId === "start") {
-      console.log("start");
       const categories = await fetchCategories();
       const categoryNodes = categories?.map((cat) => ({
         id: cat.strCategory,
@@ -69,7 +68,6 @@ const App = () => {
       !nodeId.startsWith("meal-") &&
       !nodeId.startsWith("view-")
     ) {
-      console.log("!meal && not view", nodeId);
       const meals = await fetchMealsByCategory(nodeId);
       const mealNodes = meals?.map((meal) => ({
         id: meal.idMeal,
@@ -125,21 +123,35 @@ const App = () => {
           style: { stroke: "#4caf50" },
         },
       ];
-      setNodes((prevNodes) =>
-        layoutNodes(
-          [
-            ...prevNodes,
-            ...mealNodes,
-            viewIngredientsNode,
-            viewTagsNode,
-            viewDetailsNode,
-          ],
-          [...edges, ...newEdges, ...optionEdges]
-        )
-      );
-      setEdges((prevEdges) => [...prevEdges, ...newEdges, ...optionEdges]);
+      if (
+        nodeId &&
+        !nodeId.startsWith("meal-") &&
+        !nodeId.startsWith("view-") &&
+        !Number(nodeId)
+      ) {
+        setNodes((prevNodes) =>
+          layoutNodes(
+            [...prevNodes, ...mealNodes],
+            [...edges, ...newEdges, ...optionEdges]
+          )
+        );
+        setEdges((prevEdges) => [...prevEdges, ...newEdges]);
+      } else {
+        setNodes((prevNodes) =>
+          layoutNodes(
+            [
+              ...prevNodes,
+              ...mealNodes,
+              viewIngredientsNode,
+              viewTagsNode,
+              viewDetailsNode,
+            ],
+            [...edges, ...newEdges, ...optionEdges]
+          )
+        );
+        setEdges((prevEdges) => [...prevEdges, ...newEdges, ...optionEdges]);
+      }
     } else if (nodeId.startsWith("view-")) {
-      console.log("view");
       const mealId = nodeId.split("-")[2];
       if (nodeId.includes("details")) {
         console.log("details");
@@ -147,7 +159,6 @@ const App = () => {
         setSelectedMeal(meal);
       }
     } else {
-      // Handle clicks on older nodes or options (re-open details or categories)
       console.log("Node clicked:", nodeId);
     }
   };
