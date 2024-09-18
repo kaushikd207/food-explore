@@ -3,18 +3,18 @@ import Flow from "./components/Flow";
 import Sidebar from "./components/Sidebar";
 import { fetchCategories, fetchMealsByCategory, fetchMealDetails } from "./api";
 import dagre from "dagre";
-import { FaGlobe } from "react-icons/fa";
+import { FaGlobe, FaShare } from "react-icons/fa";
 import { MdOutlineNoMeals } from "react-icons/md";
 import { BiCategoryAlt } from "react-icons/bi";
-import { FaShare } from "react-icons/fa";
+
 // Function to arrange nodes using dagre layout with horizontal alignment
 const layoutNodes = (nodes, edges) => {
   const g = new dagre.graphlib.Graph();
-  g.setGraph({ rankdir: "LR", align: "UL", nodesep: 100 }); // Left-to-right (LR) layout with 100px node separation
+  g.setGraph({ rankdir: "LR", align: "UL", nodesep: 100 });
   g.setDefaultEdgeLabel(() => ({}));
 
   nodes.forEach((node) => {
-    g.setNode(node.id, { width: 172, height: 36 }); // Set node width and height
+    g.setNode(node.id, { width: 172, height: 36 });
   });
 
   edges.forEach((edge) => {
@@ -28,190 +28,105 @@ const layoutNodes = (nodes, edges) => {
     return {
       ...node,
       position: {
-        x: nodeWithPosition.x, // Adjusts x-coordinates for horizontal alignment
-        y: nodeWithPosition.y, // Sets y-coordinates
+        x: nodeWithPosition.x,
+        y: nodeWithPosition.y,
       },
     };
   });
 };
 
+// Helper function to create nodes with consistent styling and icons
+const createNode = (id, label, Icon, additionalStyle = {}) => ({
+  id,
+  data: {
+    label: (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Icon style={{ marginRight: "8px" }} />
+        {label}
+      </div>
+    ),
+  },
+  position: { x: 0, y: 0 },
+  style: {
+    background: "white",
+    borderRadius: "5px",
+    fontWeight: "bold",
+    ...additionalStyle,
+  },
+});
+
+// Helper function to create edges with consistent styling
+const createEdge = (source, target, stroke = "#00aaff") => ({
+  id: `edge-${source}-${target}`,
+  source,
+  target,
+  animated: true,
+  style: { stroke },
+});
+
 const App = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [selectedMeal, setSelectedMeal] = useState(null);
+  const [selectedMeal, setSelectedMeal] = useState(null); // Meal data for the Sidebar
 
   const handleNodeClick = async (event, node) => {
     const nodeId = node.id;
 
+    // When clicking the 'Explore' button to fetch categories
     if (nodeId === "start") {
       const categories = await fetchCategories();
-      const categoryNodes = categories?.map((cat) => ({
-        id: cat.strCategory,
-        data: {
-          label: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <BiCategoryAlt style={{ marginRight: "8px" }} /> {cat.strCategory}
-            </div>
-          ),
-        },
-        position: { x: 0, y: 0 },
-        style: {
-          background: "white",
-          borderRadius: "5px",
-          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-          fontWeight: "bold",
-        },
-      }));
-      const newEdges = categoryNodes?.map((categoryNode) => ({
-        id: `edge-${nodeId}-${categoryNode.id}`,
-        source: nodeId,
-        target: categoryNode.id,
-        animated: true,
-        style: { stroke: "#00aaff" },
-      }));
+      const categoryNodes = categories?.map((cat) =>
+        createNode(cat.strCategory, cat.strCategory, BiCategoryAlt)
+      );
+      const newEdges = categoryNodes?.map((categoryNode) =>
+        createEdge(nodeId, categoryNode.id)
+      );
+
       setNodes((prevNodes) =>
         layoutNodes([...prevNodes, ...categoryNodes], [...edges, ...newEdges])
       );
       setEdges((prevEdges) => [...prevEdges, ...newEdges]);
+
+      // When clicking a category node to fetch meals
     } else if (
-      nodeId &&
       !nodeId.startsWith("meal-") &&
-      !nodeId.startsWith("view-")
+      !nodeId.startsWith("view-") &&
+      isNaN(nodeId)
     ) {
       const meals = await fetchMealsByCategory(nodeId);
-      const mealNodes = meals?.map((meal) => ({
-        id: meal.idMeal,
-        data: {
-          label: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <MdOutlineNoMeals style={{ marginRight: "8px" }} /> {meal.strMeal}
-            </div>
-          ),
-        },
-        position: { x: 0, y: 0 },
-        style: {
-          background: "white",
-          borderRadius: "5px",
-          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-          fontWeight: "bold",
-        },
-      }));
-      const newEdges = mealNodes?.map((mealNode) => ({
-        id: `edge-${nodeId}-${mealNode.id}`,
-        source: nodeId,
-        target: mealNode.id,
-        animated: true,
-        style: { stroke: "#ff5722" },
-      }));
-      const viewIngredientsNode = {
-        id: `view-ingredients-${nodeId}`,
-        data: {
-          label: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
-              "View Ingredient"
-            </div>
-          ),
-        },
-        position: { x: 0, y: 0 },
-        style: {
-          background: "white",
-          borderRadius: "5px",
-          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-          fontWeight: "bold",
-        },
-      };
-      const viewTagsNode = {
-        id: `view-tags-${nodeId}`,
-        data: {
-          label: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
-              "View Tags"
-            </div>
-          ),
-        },
-        position: { x: 0, y: 0 },
-        style: {
-          background: "white",
-          borderRadius: "5px",
-          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-          fontWeight: "bold",
-        },
-      };
-      const viewDetailsNode = {
-        id: `view-details-${nodeId}`,
-        data: {
-          label: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <FaShare style={{ marginRight: "8px" }} /> {/* Add your icon */}
-              "View Details"
-            </div>
-          ),
-        },
-        position: { x: 0, y: 0 },
-        style: {
-          background: "white",
-          borderRadius: "5px",
-          // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-          fontWeight: "bold",
-        },
-      };
-      const optionEdges = [
-        {
-          id: `edge-${nodeId}-${viewIngredientsNode.id}`,
-          source: nodeId,
-          target: viewIngredientsNode.id,
-          animated: true,
-          style: { stroke: "#4caf50" },
-        },
-        {
-          id: `edge-${nodeId}-${viewTagsNode.id}`,
-          source: nodeId,
-          target: viewTagsNode.id,
-          animated: true,
-          style: { stroke: "#4caf50" },
-        },
-        {
-          id: `edge-${nodeId}-${viewDetailsNode.id}`,
-          source: nodeId,
-          target: viewDetailsNode.id,
-          animated: true,
-          style: { stroke: "#4caf50" },
-        },
+      const mealNodes = meals?.map((meal) =>
+        createNode(`meal-${meal.idMeal}`, meal.strMeal, MdOutlineNoMeals)
+      );
+      const newEdges = mealNodes?.map((mealNode) =>
+        createEdge(nodeId, mealNode.id, "#ff5722")
+      );
+
+      setNodes((prevNodes) =>
+        layoutNodes([...prevNodes, ...mealNodes], [...edges, ...newEdges])
+      );
+      setEdges((prevEdges) => [...prevEdges, ...newEdges]);
+
+      // When clicking a meal node to show "View" options
+    } else if (nodeId.startsWith("meal-")) {
+      const viewNodes = [
+        createNode(`view-ingredients-${nodeId}`, "View Ingredients", FaShare),
+        createNode(`view-tags-${nodeId}`, "View Tags", FaShare),
+        createNode(`view-details-${nodeId}`, "View Details", FaShare),
       ];
-      if (
-        nodeId &&
-        !nodeId.startsWith("meal-") &&
-        !nodeId.startsWith("view-") &&
-        !Number(nodeId)
-      ) {
-        setNodes((prevNodes) =>
-          layoutNodes(
-            [...prevNodes, ...mealNodes],
-            [...edges, ...newEdges, ...optionEdges]
-          )
-        );
-        setEdges((prevEdges) => [...prevEdges, ...newEdges]);
-      } else {
-        setNodes((prevNodes) =>
-          layoutNodes(
-            [
-              ...prevNodes,
-              ...mealNodes,
-              viewIngredientsNode,
-              viewTagsNode,
-              viewDetailsNode,
-            ],
-            [...edges, ...newEdges, ...optionEdges]
-          )
-        );
-        setEdges((prevEdges) => [...prevEdges, ...newEdges, ...optionEdges]);
-      }
+
+      const viewEdges = viewNodes.map((viewNode) =>
+        createEdge(nodeId, viewNode.id, "#4caf50")
+      );
+
+      setNodes((prevNodes) =>
+        layoutNodes([...prevNodes, ...viewNodes], [...edges, ...viewEdges])
+      );
+      setEdges((prevEdges) => [...prevEdges, ...viewEdges]);
+
+      // When clicking a "View Details" node to fetch meal details
     } else if (nodeId.startsWith("view-")) {
-      const mealId = nodeId.split("-")[2];
+      const mealId = nodeId.split("-")[3];
       if (nodeId.includes("details")) {
-        console.log("details");
         const meal = await fetchMealDetails(mealId);
         setSelectedMeal(meal);
       }
@@ -221,8 +136,8 @@ const App = () => {
   };
 
   return (
-    <>
-      <div className=" h-10 border border-b-2 border-b-grey">
+    <div>
+      <div className="h-10 border-b-2 border-gray-300">
         <p className="mt-1 ml-2">Food Explorer</p>
       </div>
       <div className="relative flex">
@@ -238,7 +153,7 @@ const App = () => {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

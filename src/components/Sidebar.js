@@ -4,7 +4,7 @@ const Sidebar = ({ meal, onClose }) => {
   if (!meal) return null;
 
   return (
-    <div className="w-1/4 h-full bg-white p-4 overflow-y-auto">
+    <div className="w-1/4 h-screen bg-white p-4 overflow-y-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">{meal.strMeal}</h2>
         <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -49,7 +49,7 @@ const Sidebar = ({ meal, onClose }) => {
       <div className="mb-4">
         <h3 className="text-xl font-semibold mb-2">Instructions</h3>
         <p className="text-gray-700">
-          {meal.strInstructions.slice(0, 250) + "..."}
+          {meal.strInstructions.slice(0, 200) + "..."}
         </p>
       </div>
     </div>
