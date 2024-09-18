@@ -1,3 +1,15 @@
+This is a Food explore application where users can search food recipes, read blogs, and watch videos.
+
+
+
+
+https://github.com/user-attachments/assets/4521205e-bd28-488a-b016-e1dc70cc71da
+
+Deployed Link:- https://makefoodkd.netlify.app/
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
